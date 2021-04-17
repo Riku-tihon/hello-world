@@ -27,7 +27,7 @@ export default
     {
       this.text='unfavorite'
     }
-    this.$store.commit('price')
+      this.$store.commit('price')
   },
   methods:
   {

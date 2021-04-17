@@ -13,7 +13,9 @@
       <td v-for="(value,name,index) in car" :key="index">
         <div v-if="text[car.id-1]==='edit'">
         <img v-if="name==='url'"  :src="value" style="width: 50px;height: 50px">
-        <div v-else>{{value}}</div></div>
+        <div v-else-if="name==='price'">{{value}}$</div>
+          <div v-else>{{value}}</div>
+        </div>
         <div v-else><input type="text" v-model="car[name]"></div>
       </td>
       <td><button @click="edit(car.id-1,car)">{{text[car.id-1]}}</button></td>
@@ -21,7 +23,6 @@
       <td><button @click="favorite(car.id-1,car)">{{text1[car.id-1]}}</button></td>
     </tr>
     </table>
-    <button @click="bii">b</button>
     <button @click="$router.push(`/${+this.id -1}`)"  :disabled="id<2">  1</button>
     <button @click="$router.push(`/${+this.id +1}`)" :disabled="(+id+1)>(pages)"> ></button>
   </div>
@@ -52,22 +53,22 @@ export default {
         },
         pages()
         {
-          return this.$store.state.inventory.length/this.pagination
+          return Math.ceil(this.$store.state.inventory.length/this.pagination)
+
         }
       },
   mounted() {
-    for (let i = 0; i < 50; i++) {
+    for (let i = 0; i < this.$store.state.inventory.length; i++) {
       this.text[i]='edit';
     }
-    for (let i = 0; i < 50; i++) {
-      if (this.favoriteCar.includes(this.inventory[i]))
-      {
-        this.text1[i]='unfavorite';
+    for (let i = 0; i < this.$store.state.inventory.length; i++) {
+      if (this.favoriteCar.includes(this.inventory[i])) {
+        this.text1[i] = 'unfavorite';
+      } else {
+        this.text1[i] = 'favorite';
       }
-      else {this.text1[i]='favorite';}
     }
     this.$store.commit('price')
-    console.log(this.inventory)
   },
   methods:
       {

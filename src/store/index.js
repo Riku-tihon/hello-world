@@ -423,11 +423,17 @@ const store = createStore({
             state.favoriteCars.push(favorite)
         },
         removeFavorite(state,favorite) {
-            state.favoriteCars.splice(state.favoriteCars.findIndex(item => item === favorite.id), 1)
+            state.favoriteCars.splice(state.favoriteCars.findIndex(item => item.id === favorite.id), 1)
         },
         price(state)
         {
-            state.inventory.map(item=>item=({...item,price:Math.round(Math.random()*96000+4000)}))
+            console.log(state.inventory[0].price)
+            if (state.inventory[0].price===undefined){
+            state.inventory=state.inventory.map(item=>item=({...item,price:Math.round(Math.random()*96000+4000)}))}
+        },
+        newCar(state,car)
+        {
+            state.inventory.push(car);
         }
     },
     getters: {
