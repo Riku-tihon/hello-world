@@ -1,9 +1,14 @@
 <template>
   <div v-for="(value,name,index) in car" :key="index">
-    <img v-if="name==='url'" :src="value" alt="" width="150" height="150">
+    <div v-if="text1==='edit'">
+    <img v-if="name==='url'"  :src="value" style="width: 50px;height: 50px">
+    <div v-else-if="name==='price'">{{value}}$</div>
     <div v-else>{{value}}</div>
   </div>
+    <div v-else><input type="text" v-model="car[name]" :disabled="name==='id'"></div>
+  </div>
   <button @click="favorite(car)">{{text}}</button>
+  <button @click="edit(car)">{{text1}}</button>
 </template>
 <script>
 export default
@@ -14,6 +19,7 @@ export default
   {
     return{
       text:'favorite',
+      text1:'edit'
     }
   },
   computed:
@@ -31,7 +37,6 @@ export default
   },
   methods:
   {
-
       favorite(car)
       {
         if (this.text==='favorite')
@@ -44,7 +49,15 @@ export default
           this.$store.commit('removeFavorite',car)
           this.text='favorite';
         }
-      }
+      },
+    edit(car)
+    {
+      if (this.text1==='edit'){
+        this.text1='save'}
+      else {
+        this.$store.dispatch('changeCar',car)
+        this.text1='edit'}
+    }
 
   }
 }

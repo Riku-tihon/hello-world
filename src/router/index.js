@@ -4,6 +4,9 @@ import Car from '../views/Car.vue'
 import FavoriteCars from '../views/FavoriteCars.vue'
 import NewCar from '../views/NewCar.vue'
 import Calculator from '../views/Calculator.vue'
+import Login from '../views/Login.vue'
+import store from '../store/index.js'
+import ToHome from "@/views/ToHome";
 const routes = [
   {
     path: '/:id',
@@ -12,15 +15,26 @@ const routes = [
     props:true,
   },
   {
+    path:'/',
+    name: 'ToHome',
+    component: ToHome,
+  },
+  {
     path: '/car/:id',
     name: 'Car',
     component: Car,
     props:true,
   },
   {
-    path: '/favoritecars',
+    path: '/favoritecars/:id',
     name: 'Favorite Cars',
     component: FavoriteCars,
+    props:true,
+  },
+  {
+    path:'/login',
+    name:'Login',
+    component: Login,
   },
   {
     path:'/newcar',
@@ -38,5 +52,11 @@ const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes
 })
+router.beforeEach((to, from, next) => {
+  let authenticated = store.state.token;
+  if (authenticated && to.name !== 'Login') {
+    next({ name: 'Login' })
+  } else next()
+  });
 
 export default router

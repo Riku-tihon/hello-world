@@ -1,9 +1,11 @@
 <template>
   <div id="nav">
     <router-link to="/1">Home</router-link> |
-    <router-link to="/favoritecars">Favorite Cars</router-link> |
+    <router-link to="/favoritecars/1">Favorite Cars</router-link> |
     <router-link to="/newcar">New car</router-link> |
-    <router-link to="/calculator"> Caclculator</router-link>
+    <router-link to="/calculator"> Calculator</router-link> |
+    <button @click="  this.$store.dispatch('logout')">logout</button>
+    <div><button @click="this.$store.commit('gridsOrTable','grids')">Grids</button><button @click="this.$store.commit('gridsOrTable','table')">Table</button></div>
   </div>
   <router-view/>
 </template>

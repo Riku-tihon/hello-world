@@ -1,7 +1,12 @@
 <template>
   <div class="home">
     <div>{{id}}</div>
+<div>
+    <button @click="$router.push(`/${+this.id -1}`)"  :disabled="id<2">  1</button>
+    <button @click="$router.push(`/${+this.id +1}`)" :disabled="(+id+1)>(pages)"> ></button>
+</div>
     <input type="number" v-model="pagination" @change="newPagination">
+    <div v-if="gridsOrTable==='table'">
     <table v-if="inventory.length>0" style="width: 100%">
       <tr>
         <th v-for="(value,name,index) in inventory[0]" :key="index">{{name}}</th>
@@ -16,13 +21,32 @@
         <div v-else-if="name==='price'">{{value}}$</div>
           <div v-else>{{value}}</div>
         </div>
-        <div v-else><input type="text" v-model="car[name]"></div>
+        <div v-else><input type="text" v-model="car[name]" :disabled="name==='id'"></div>
       </td>
       <td><button @click="edit(car.id-1,car)">{{text[car.id-1]}}</button></td>
       <td><button @click="$router.push(`/car/${car.id}`)">View</button></td>
       <td><button @click="favorite(car.id-1,car)">{{text1[car.id-1]}}</button></td>
     </tr>
     </table>
+    </div>
+    <div v-else>
+      <div v-if="inventory.length>0" >
+        <div v-for="car in inventory" :key="car.id" style="width: 25%;border: solid black 1px; display: inline-block">
+          <div v-for="(value,name,index) in car" :key="index">
+          <div v-if="text[car.id-1]==='edit'">
+            <img v-if="name==='url'"  :src="value" style="width: 50px;height: 50px">
+            <div v-else-if="name==='price'">{{value}}$</div>
+            <div v-else>{{value}}</div>
+          </div>
+          <div v-else><input type="text" v-model="car[name]" :disabled="name==='id'">
+          </div>
+        </div>
+          <button @click="edit(car.id-1,car)">{{text[car.id-1]}}</button>
+          <button @click="$router.push(`/car/${car.id}`)">View</button>
+          <button @click="favorite(car.id-1,car)">{{text1[car.id-1]}}</button>
+        </div>
+      </div>
+    </div>
     <button @click="$router.push(`/${+this.id -1}`)"  :disabled="id<2">  1</button>
     <button @click="$router.push(`/${+this.id +1}`)" :disabled="(+id+1)>(pages)"> ></button>
   </div>
@@ -47,6 +71,10 @@ export default {
   },
   computed:
       {
+        gridsOrTable()
+        {
+          return this.$store.state.gridsOrTable
+        },
         inventory()
         {
           return this.$store.state.inventory.filter(item=>item.id>(+ this.id -1)*this.pagination&&item.id<= +this.id *this.pagination)
@@ -77,11 +105,18 @@ export default {
           if (this.text[id]==='edit'){
           this.text[id]='save'}
           else {
-            this.$store.dispatch('newCar',car)
+            this.$store.dispatch('changeCar',car)
             this.text[id]='edit'}
         },
         newPagination() {
-          this.$store.commit('newPagination',this.pagination);
+          if (this.pagination<=0)
+          {
+            this.$store.commit('newPagination',1);
+            this.pagination=1
+          }
+          else
+          {
+            this.$store.commit('newPagination',this.pagination);}
         },
         favorite(id,car)
         {

@@ -1,5 +1,7 @@
 import { createApp } from 'vue'
 import { createStore } from 'vuex'
+import router from '../router/index.js'
+import axios from "axios";
 const store = createStore({
     state () {
         return{
@@ -404,11 +406,19 @@ const store = createStore({
         ],
         pagination:50,
             favoriteCars:[],
+            token:0,
+            paginationFavorites:50,
+            noCar:{},
+            gridsOrTable:'table',
         }
     },
     mutations: {
-        newPages(state,ne) {
-    state.pagination=ne
+        setToken(state) {
+            state.token = 0;
+        },
+        plusToken(state)
+        {
+            state.token=1
         },
         changeCar(state,car)
         {
@@ -417,6 +427,10 @@ const store = createStore({
         newPagination(state,newPages)
         {
             state.pagination=newPages;
+        },
+        newPaginationFavorite(state,newPages)
+        {
+            state.paginationFavorites=newPages;
         },
         addFavorite(state,favorite)
         {
@@ -434,19 +448,39 @@ const store = createStore({
         newCar(state,car)
         {
             state.inventory.push(car);
+        },
+        updateNoCar(state,car)
+        {
+            state.noCar=car
+        },
+        gridsOrTable(state,no)
+        {
+            state.gridsOrTable=no;
         }
     },
     getters: {
     },
     actions: {
-      newPages({commit},ne)
-      {
-          commit('newPages',ne);
-      },
+        login({ commit }, data){
+            axios.post('https://reqres.in/api/login', data)
+                .then((response) => {
+                    commit("setToken", response.data.token)
+                    router.push("/1")
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
+        },
+        logout({commit})
+        {
+            commit("plusToken");
+            router.push("/login")
+        },
       newCar({commit},car)
       {
           commit('changeCar',car)
       },
+
     }
 })
 
