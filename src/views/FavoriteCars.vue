@@ -2,8 +2,8 @@
   <div class="favorite">
     <div>{{id}}</div>
     <div>
-      <button @click="$router.push(`/favoritecars/${+this.id -1}`)"  :disabled="id<2">  1</button>
-      <button @click="$router.push(`/favoritecars/${+this.id +1}`)" :disabled="(+id+1)>(pages)"> ></button>
+      <button @click="$router.push(`/favoritecars/${+this.id -1}`)"  :disabled="id<2">  {{+id-1}}</button>
+      <button @click="$router.push(`/favoritecars/${+this.id +1}`)" :disabled="(+id+1)>(pages)"> {{+id+1}}</button>
     </div>
     <input type="number" v-model="pagination" @change="newPagination">
     <div v-if="gridsOrTable==='table'">
@@ -16,14 +16,14 @@
       </tr>
       <tr v-for="(car,idx) in favoriteCars" :key="car.id">
         <td v-for="(value,name,index) in car" :key="index">
-          <div v-if="text[idx]==='edit'">
+          <div v-if="edits[idx]==='edit'">
           <img v-if="name==='url'"  :src="value" style="width: 50px;height: 50px">
           <div v-else-if="name==='price'">{{value}}$</div>
           <div v-else>{{value}}</div>
           </div>
           <div v-else><input type="text" v-model="car[name]" :disabled="name==='id'"></div>
         </td>
-        <td><button @click="edit(idx,car)">{{text[idx]}}</button></td>
+        <td><button @click="edit(idx,car)">{{edits[idx]}}</button></td>
         <td><button @click="$router.push(`/car/${car.id}`)">View</button></td>
         <td><button @click="favorite(car)">unfavorite</button></td>
       </tr></table>
@@ -31,7 +31,7 @@
     <div v-else><div>
       <div v-for="(car,idx) in favoriteCars"  :key="car.id" style="width: 25%;border: solid black 1px; display: inline-block">
         <div v-for="(value,name,index) in car" :key="index">
-          <div v-if="text[idx]==='edit'">
+          <div v-if="edits[idx]==='edit'">
             <img v-if="name==='url'"  :src="value" style="width: 50px;height: 50px">
             <div v-else-if="name==='price'">{{value}}$</div>
             <div v-else>{{value}}</div>
@@ -39,7 +39,7 @@
           <div v-else><input type="text" v-model="car[name]" :disabled="name==='id'">
           </div>
         </div>
-        <button @click="edit(idx,car)">{{text[idx]}}</button>
+        <button @click="edit(idx,car)">{{edits[idx]}}</button>
         <button @click="$router.push(`/car/${car.id}`)">View</button>
         <button @click="favorite(car)">unfavorite</button>
       </div>
@@ -59,7 +59,7 @@ export default
   {
     return{
       pagination:this.$store.state.paginationFavorites,
-      text:[]
+      edits:[]
     }
   },
  computed:{
@@ -80,9 +80,13 @@ export default
   mounted() {
 
     for (let i = 0; i < this.$store.state.favoriteCars.length; i++) {
-      this.text[i]='edit';
+      this.edits[i]='edit';
     }
-    console.log(this.text);
+    if(this.favoriteCars.length===0)
+    {
+      this.$router.push('/favoritecars/1')
+    }
+
   },
   methods:
       {
@@ -98,15 +102,21 @@ export default
           }
           else
           {
+            if(this.favoriteCars.length===0)
+            {
+              this.$router.push('/favoritecars/1')
+            }
           this.$store.commit('newPaginationFavorite',this.pagination);}
         },
         edit(id,car)
         {
-          if (this.text[id]==='edit'){
-            this.text[id]='save'}
+          if (this.edits[id]==='edit'){
+            this.edits[id]='save'}
           else {
-            this.$store.dispatch('changeCar',car)
-            this.text[id]='edit'
+            this.$store.commit('changeCar',car);
+            if (this.$store.state.favoriteCars.find(item=>item.id===car.id)!==undefined){
+              this.$store.commit('changeFavorite',car);}
+            this.edits[id]='edit'
           }
         }
       }

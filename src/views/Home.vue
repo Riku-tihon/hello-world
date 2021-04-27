@@ -2,8 +2,8 @@
   <div class="home">
     <div>{{id}}</div>
 <div>
-    <button @click="$router.push(`/${+this.id -1}`)"  :disabled="id<2">  1</button>
-    <button @click="$router.push(`/${+this.id +1}`)" :disabled="(+id+1)>(pages)"> ></button>
+    <button @click="$router.push(`/${+this.id -1}`)"  :disabled="id<2">  {{+id-1}}</button>
+    <button @click="$router.push(`/${+this.id +1}`)" :disabled="(+id+1)>(pages)">{{+id+1}}</button>
 </div>
     <input type="number" v-model="pagination" @change="newPagination">
     <div v-if="gridsOrTable==='table'">
@@ -16,16 +16,16 @@
       </tr>
     <tr v-for="car in inventory" :key="car.id">
       <td v-for="(value,name,index) in car" :key="index">
-        <div v-if="text[car.id-1]==='edit'">
+        <div v-if="edits[car.id-1]==='edit'">
         <img v-if="name==='url'"  :src="value" style="width: 50px;height: 50px">
         <div v-else-if="name==='price'">{{value}}$</div>
           <div v-else>{{value}}</div>
         </div>
         <div v-else><input type="text" v-model="car[name]" :disabled="name==='id'"></div>
       </td>
-      <td><button @click="edit(car.id-1,car)">{{text[car.id-1]}}</button></td>
+      <td><button @click="edit(car.id-1,car)">{{edits[car.id-1]}}</button></td>
       <td><button @click="$router.push(`/car/${car.id}`)">View</button></td>
-      <td><button @click="favorite(car.id-1,car)">{{text1[car.id-1]}}</button></td>
+      <td><button @click="favorite(car.id-1,car)">{{favorites[car.id-1]}}</button></td>
     </tr>
     </table>
     </div>
@@ -33,7 +33,7 @@
       <div v-if="inventory.length>0" >
         <div v-for="car in inventory" :key="car.id" style="width: 25%;border: solid black 1px; display: inline-block">
           <div v-for="(value,name,index) in car" :key="index">
-          <div v-if="text[car.id-1]==='edit'">
+          <div v-if="edits[car.id-1]==='edit'">
             <img v-if="name==='url'"  :src="value" style="width: 50px;height: 50px">
             <div v-else-if="name==='price'">{{value}}$</div>
             <div v-else>{{value}}</div>
@@ -41,9 +41,9 @@
           <div v-else><input type="text" v-model="car[name]" :disabled="name==='id'">
           </div>
         </div>
-          <button @click="edit(car.id-1,car)">{{text[car.id-1]}}</button>
+          <button @click="edit(car.id-1,car)">{{edits[car.id-1]}}</button>
           <button @click="$router.push(`/car/${car.id}`)">View</button>
-          <button @click="favorite(car.id-1,car)">{{text1[car.id-1]}}</button>
+          <button @click="favorite(car.id-1,car)">{{favorites[car.id-1]}}</button>
         </div>
       </div>
     </div>
@@ -63,8 +63,8 @@ export default {
     return {
     pagination:this.$store.state.pagination,
     b: (+this.id)-3,
-      text:[],
-      text1:[],
+      edits:[],
+      favorites:[],
       car1:{},
       favoriteCar:this.$store.state.favoriteCars,
     }
@@ -87,48 +87,62 @@ export default {
       },
   mounted() {
     for (let i = 0; i < this.$store.state.inventory.length; i++) {
-      this.text[i]='edit';
+      this.edits[i]='edit';
     }
     for (let i = 0; i < this.$store.state.inventory.length; i++) {
       if (this.favoriteCar.includes(this.inventory[i])) {
-        this.text1[i] = 'unfavorite';
+        this.favorites[i] = 'unfavorite';
       } else {
-        this.text1[i] = 'favorite';
+        this.favorites[i] = 'favorite';
       }
     }
-    this.$store.commit('price')
+    if (this.$store.state.inventory[0].price===undefined)
+    {
+    this.$store.commit('price');}
+    if(this.inventory.length===0)
+    {
+      this.$router.push('/1')
+    }
   },
   methods:
       {
         edit(id,car)
         {
-          if (this.text[id]==='edit'){
-          this.text[id]='save'}
+          if (this.edits[id]==='edit'){
+          this.edits[id]='save'}
           else {
-            this.$store.dispatch('changeCar',car)
-            this.text[id]='edit'}
+            this.$store.commit('changeCar',car);
+            if (this.$store.state.favoriteCars.find(item=>item.id===car.id)!==undefined){
+              this.$store.commit('changeFavorite',car);}
+            this.edits[id]='edit'}
         },
         newPagination() {
           if (this.pagination<=0)
           {
             this.$store.commit('newPagination',1);
-            this.pagination=1
+            this.pagination=1;
+            this.$store.commit('price');
           }
           else
           {
-            this.$store.commit('newPagination',this.pagination);}
+            this.$store.commit('newPagination',this.pagination);
+            if(this.inventory.length===0)
+            {
+              this.$router.push('/1')
+            }
+          }
         },
         favorite(id,car)
         {
-          if (this.text1[id]==='favorite')
+          if (this.favorites[id]==='favorite')
           {
             this.$store.commit('addFavorite',car)
-            this.text1[id]='unfavorite';
+            this.favorites[id]='unfavorite';
           }
           else
           {
             this.$store.commit('removeFavorite',car)
-            this.text1[id]='favorite';
+            this.favorites[id]='favorite';
           }
         }
       }

@@ -441,9 +441,7 @@ const store = createStore({
         },
         price(state)
         {
-            console.log(state.inventory[0].price)
-            if (state.inventory[0].price===undefined){
-            state.inventory=state.inventory.map(item=>item=({...item,price:Math.round(Math.random()*96000+4000)}))}
+            state.inventory=state.inventory.map(item=>item=({...item,price:Math.round(Math.random()*96000+4000)}))
         },
         newCar(state,car)
         {
@@ -453,9 +451,13 @@ const store = createStore({
         {
             state.noCar=car
         },
-        gridsOrTable(state,no)
+        gridsOrTable(state,gridsTable)
         {
-            state.gridsOrTable=no;
+            state.gridsOrTable=gridsTable;
+        },
+        changeFavorite(state,car)
+        {
+            state.favoriteCars[state.favoriteCars.findIndex(item=>item.id===car.id)]=car;
         }
     },
     getters: {
